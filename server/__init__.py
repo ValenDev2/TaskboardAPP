@@ -1,0 +1,1 @@
+import server.models  # importa todos los modelos para que SQLAlchemy los registre
