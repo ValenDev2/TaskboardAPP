@@ -2,14 +2,16 @@ from datetime import datetime, timedelta, timezone
 import bcrypt
 from jose import JWTError, jwt
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 
 from server.config import settings
 from server.database import get_db
 from server.models.user import User
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+# HTTPBearer muestra en Swagger un simple campo de texto para pegar el token,
+# en vez del formulario de usuario/contraseña que pide OAuth2PasswordBearer
+bearer_scheme = HTTPBearer()
 
 
 def hash_password(password: str) -> str:
@@ -35,10 +37,11 @@ def create_access_token(user_id: int) -> str:
 
 
 def get_current_user(
-    token: str = Depends(oauth2_scheme),
+    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
     db: Session = Depends(get_db)
 ) -> User:
     """Valida el token y devuelve el usuario actual. Error 401 si es inválido."""
+    token = credentials.credentials
     credentials_error = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Token inválido o expirado",
@@ -46,8 +49,8 @@ def get_current_user(
     )
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        user_id = payload.get("sub")
-        if not isinstance(user_id, str):
+        user_id: str = payload.get("sub")
+        if user_id is None:
             raise credentials_error
     except JWTError:
         raise credentials_error

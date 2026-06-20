@@ -28,10 +28,7 @@ def health_check():
     }
 
 # Routers
-from server.routers import auth
-app.include_router(auth.router, prefix="/auth", tags=["auth"])
-
-# Próximamente:
-# from server.routers import projects, tasks
-# app.include_router(projects.router, prefix="/projects", tags=["projects"])
-# app.include_router(tasks.router,    prefix="/tasks",    tags=["tasks"])
+from server.routers import auth, projects, tasks
+app.include_router(auth.router,     prefix="/auth",     tags=["auth"])
+app.include_router(projects.router, prefix="/projects", tags=["projects"])
+app.include_router(tasks.router,    tags=["tasks"])  # sin prefix, las rutas ya incluyen /projects y /tasks
