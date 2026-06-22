@@ -54,7 +54,6 @@ def create_project(
     db.commit()
     db.refresh(project)
 
-    # El creador se agrega a sí mismo como miembro con rol "owner"
     membership = ProjectMember(
         project_id=project.id,
         user_id=current_user.id,

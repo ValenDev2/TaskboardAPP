@@ -18,8 +18,6 @@ class ProjectOut(BaseModel):
     description: Optional[str]
     owner_id: int
     created_at: datetime
-    # rol del usuario actual en este proyecto — útil para el frontend
-    # (para saber si mostrar botones de owner o no)
     my_role: Optional[str] = None
 
     model_config = {"from_attributes": True}

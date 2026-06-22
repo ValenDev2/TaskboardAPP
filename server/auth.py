@@ -9,8 +9,6 @@ from server.config import settings
 from server.database import get_db
 from server.models.user import User
 
-# HTTPBearer muestra en Swagger un simple campo de texto para pegar el token,
-# en vez del formulario de usuario/contraseña que pide OAuth2PasswordBearer
 bearer_scheme = HTTPBearer()
 
 

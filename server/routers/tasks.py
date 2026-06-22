@@ -1,13 +1,8 @@
-# routers/tasks.py — Endpoints de tareas
+# routers/tasks.py - Endpoints de tareas
 #
-# Reglas de permisos (definidas en la idea original del proyecto):
-#   - El owner puede: crear, editar, eliminar tareas, moverlas a cualquier estado
-#   - El member puede: ver todas las tareas, marcarlas como "done"
-#
-# POST   /projects/{project_id}/tasks         → crear tarea (solo owner)
-# GET    /projects/{project_id}/tasks         → listar tareas del proyecto (cualquier miembro)
-# PATCH  /tasks/{task_id}/status              → cambiar estado (owner: cualquiera | member: solo "done")
-# DELETE /tasks/{task_id}                     → eliminar tarea (solo owner)
+# Permisos:
+#   Owner  - mover a cualquier estado, crear y eliminar tareas
+#   Member - mover solo a "in_progress" o "in_review"
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -21,9 +16,10 @@ from server.auth import get_current_user
 
 router = APIRouter()
 
+MEMBER_ALLOWED_STATUSES = {"in_progress", "in_review"}
+
 
 def _get_membership_or_404(db: Session, project_id: int, user_id: int) -> ProjectMember:
-    """Verifica que el usuario sea miembro del proyecto."""
     membership = db.query(ProjectMember).filter(
         ProjectMember.project_id == project_id,
         ProjectMember.user_id == user_id
@@ -40,14 +36,9 @@ def create_task(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Crea una tarea nueva en el proyecto. Solo el owner puede crear."""
-
     membership = _get_membership_or_404(db, project_id, current_user.id)
     if membership.role != "owner":
-        raise HTTPException(
-            status.HTTP_403_FORBIDDEN,
-            "Solo el creador del proyecto puede agregar tareas"
-        )
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Solo el creador puede agregar tareas")
 
     task = Task(
         project_id=project_id,
@@ -68,12 +59,8 @@ def list_tasks(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Lista todas las tareas del proyecto. Cualquier miembro puede ver."""
-
     _get_membership_or_404(db, project_id, current_user.id)
-
-    tasks = db.query(Task).filter(Task.project_id == project_id).all()
-    return tasks
+    return db.query(Task).filter(Task.project_id == project_id).all()
 
 
 @router.patch("/tasks/{task_id}/status", response_model=TaskOut)
@@ -83,22 +70,16 @@ def update_task_status(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """
-    Mueve una tarea a otro estado.
-    El owner puede moverla a cualquier estado.
-    El member solo puede marcarla como 'done'.
-    """
-
     task = db.query(Task).filter(Task.id == task_id).first()
     if not task:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Tarea no encontrada")
 
     membership = _get_membership_or_404(db, task.project_id, current_user.id)
 
-    if membership.role != "owner" and data.status != "done":
+    if membership.role != "owner" and data.status not in MEMBER_ALLOWED_STATUSES:
         raise HTTPException(
             status.HTTP_403_FORBIDDEN,
-            "Solo podés marcar tareas como completadas"
+            "Solo podés mover tareas a 'En curso' o 'En revision'"
         )
 
     task.status = data.status
@@ -113,18 +94,13 @@ def delete_task(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Elimina una tarea. Solo el owner puede eliminar."""
-
     task = db.query(Task).filter(Task.id == task_id).first()
     if not task:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Tarea no encontrada")
 
     membership = _get_membership_or_404(db, task.project_id, current_user.id)
     if membership.role != "owner":
-        raise HTTPException(
-            status.HTTP_403_FORBIDDEN,
-            "Solo el creador del proyecto puede eliminar tareas"
-        )
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Solo el creador puede eliminar tareas")
 
     db.delete(task)
     db.commit()

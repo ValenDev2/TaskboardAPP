@@ -1,11 +1,11 @@
-# schemas/task.py — Validación de datos de tareas
+# schemas/task.py - Validación de datos de tareas
 
 from pydantic import BaseModel, field_validator
 from datetime import datetime
 from typing import Optional
 
-# Los únicos estados válidos — coinciden con las columnas del tablero
-VALID_STATUSES = {"backlog", "ready", "in_progress", "in_review", "done"}
+# Los únicos estados válidos - coinciden con las columnas del tablero
+VALID_STATUSES = {"backlog", "in_progress", "in_review", "done"}
 
 
 class TaskCreate(BaseModel):

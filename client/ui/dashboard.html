@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TaskBoardAPP - Mis proyectos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 32px;
+      border-bottom: 1px solid var(--border);
+    }
+    .topbar h1 { font-size: 18px; display: flex; align-items: center; gap: 10px; }
+    .container { max-width: 720px; margin: 0 auto; padding: 40px 24px; }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .project-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 36px; }
+
+    .project-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      cursor: pointer;
+      transition: border-color 0.15s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .project-card:hover { border-color: var(--accent); }
+    .project-card h3 { font-size: 16px; margin-bottom: 4px; }
+
+    .role-badge {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+    .role-owner { background: rgba(180, 80, 47, 0.18); color: var(--accent-hi); }
+    .role-member { background: rgba(111, 125, 79, 0.18); color: var(--olive); }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-soft);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+    }
+
+    .inline-form {
+      display: flex;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .inline-form input { flex: 1; }
+    .inline-form.hidden { display: none; }
+
+    .actions-row { display: flex; gap: 8px; }
+  </style>
+</head>
+<body class="label-texture">
+
+  <div class="topbar">
+    <h1><span class="seal" style="width:32px;height:32px;font-size:13px;margin:0;">TB</span> TaskBoardAPP</h1>
+    <div class="actions-row">
+      <span class="muted" id="user-label" style="align-self:center;"></span>
+      <button class="btn btn-ghost btn-small" onclick="logout()">Cerrar sesión</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="error-msg" id="error-box"></div>
+
+    <!-- ── Mis proyectos ──────────────────────────────────────────────── -->
+    <div class="section-head">
+      <h2 style="font-size: 18px;">Mis proyectos</h2>
+      <div class="actions-row">
+        <button class="btn btn-ghost btn-small" onclick="toggleForm('join-form')">Unirme con código</button>
+        <button class="btn btn-primary btn-small" onclick="toggleForm('create-form')">+ Nuevo proyecto</button>
+      </div>
+    </div>
+
+    <!-- Formulario: crear proyecto -->
+    <form class="inline-form hidden" id="create-form" onsubmit="handleCreateProject(event)">
+      <input type="text" id="new-project-name" placeholder="Nombre del proyecto" required />
+      <button type="submit" class="btn btn-primary btn-small">Crear</button>
+    </form>
+
+    <!-- Formulario: unirse con código -->
+    <form class="inline-form hidden" id="join-form" onsubmit="handleJoinProject(event)">
+      <input type="text" id="join-code" placeholder="Código de invitación" required />
+      <button type="submit" class="btn btn-primary btn-small">Unirme</button>
+    </form>
+
+    <div class="project-list" id="project-list"></div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

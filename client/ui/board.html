@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TaskBoardAPP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 28px;
+      border-bottom: 1px solid var(--border);
+    }
+    .topbar-left { display: flex; align-items: center; gap: 14px; }
+    .back-link {
+      color: var(--text-soft);
+      text-decoration: none;
+      font-size: 13px;
+    }
+    .back-link:hover { color: var(--text); }
+    .topbar h1 { font-size: 17px; }
+    .actions-row { display: flex; gap: 8px; align-items: center; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body class="label-texture">
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <a href="dashboard.html" class="back-link">← Mis proyectos</a>
+      <h1 id="project-title">Cargando…</h1>
+    </div>
+    <div class="actions-row">
+      <button class="btn btn-ghost btn-small hidden" id="invite-btn" onclick="openInviteModal()">Invitar</button>
+      <span class="muted" id="user-label"></span>
+      <button class="btn btn-ghost btn-small" onclick="logout()">Cerrar sesión</button>
+    </div>
+  </div>
+
+  <div class="error-msg" id="error-box" style="margin: 16px 28px;"></div>
+
+  <div class="board" id="board"></div>
+
+  <!-- ── Modal: nueva tarea ──────────────────────────────────────────── -->
+  <div class="modal-overlay hidden" id="new-task-modal">
+    <div class="modal-box">
+      <h2 style="font-size: 18px; margin-bottom: 18px;">Nueva tarea</h2>
+      <form onsubmit="handleCreateTask(event)">
+        <div class="field">
+          <label for="new-task-title">Título</label>
+          <input type="text" id="new-task-title" required />
+        </div>
+        <div class="field">
+          <label for="new-task-desc">Descripción (opcional)</label>
+          <textarea id="new-task-desc"></textarea>
+        </div>
+        <div class="actions-row" style="justify-content: flex-end;">
+          <button type="button" class="btn btn-ghost btn-small" onclick="toggleNewTaskForm()">Cancelar</button>
+          <button type="submit" class="btn btn-primary btn-small">Crear tarea</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ── Modal: invitar ──────────────────────────────────────────────── -->
+  <div class="modal-overlay hidden" id="invite-modal">
+    <div class="modal-box">
+      <h2 style="font-size: 18px;">Invitar al proyecto</h2>
+      <p class="muted mt-20">Generá un código y compartiselo a quien quieras invitar.</p>
+
+      <button class="btn btn-primary btn-small mt-20" onclick="handleInvite()">Generar código</button>
+
+      <div class="hidden" id="invite-result">
+        <div class="invite-code-display" id="invite-code-box"></div>
+        <button class="btn btn-ghost btn-small" onclick="copyInviteCode()" style="width:100%;">Copiar código</button>
+      </div>
+
+      <button class="btn btn-ghost btn-small mt-20" onclick="closeInviteModal()" style="width:100%;">Cerrar</button>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/board.js"></script>
+  <script>
+    function openInviteModal() {
+      document.getElementById("invite-modal").classList.remove("hidden");
+    }
+    function closeInviteModal() {
+      document.getElementById("invite-modal").classList.add("hidden");
+      document.getElementById("invite-result").classList.add("hidden");
+    }
+  </script>
+</body>
+</html>
