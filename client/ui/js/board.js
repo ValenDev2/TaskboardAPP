@@ -176,11 +176,18 @@ async function handleInvite() {
   }
 }
 
-function copyInviteCode() {
-  const code = document.getElementById("invite-code-box").textContent;
-  navigator.clipboard.writeText(code);
-}
+async function copyInviteCode() {
+  const code = document.getElementById("invite-code-box").textContent.trim();
+  if (!code) return;
 
+  if (window.pywebview && window.pywebview.api) {
+    // Llama al método copiar_al_portapapeles definido en client/main.py
+    await window.pywebview.api.copiar_al_portapapeles(code);
+  } else {
+    // Respaldo web estándar
+    await navigator.clipboard.writeText(code);
+  }
+}
 //Carga inicial
 async function loadBoard() {
   try {
