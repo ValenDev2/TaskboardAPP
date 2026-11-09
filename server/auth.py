@@ -1,9 +1,14 @@
+import os
 from datetime import datetime, timedelta, timezone
 import bcrypt
 from jose import JWTError, jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
+from dotenv import load_dotenv
+
+# Garantiza la lectura de .env antes de inicializar settings
+load_dotenv()
 
 from server.config import settings
 from server.database import get_db

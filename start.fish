@@ -1,21 +1,23 @@
 #!/usr/bin/env fish
 
-# 1. Activar entorno virtual
+# 1. Limpiar cualquier servidor previo que haya quedado colgado en el puerto 8000
+pkill -f "uvicorn server.main:app" >/dev/null 2>&1
+
+# 2. Activar entorno virtual
 source venv/bin/activate.fish
 
-# 2. Arrancar el backend en segundo plano
+# 3. Arrancar el backend en segundo plano
 echo "🚀 Iniciando Backend (FastAPI)..."
 uvicorn server.main:app --reload --port 8000 &
-set BACKEND_PID $last_pid
 
-# Esperar 2 segundos a que Uvicorn termine de inicializarse
+# Esperar 2 segundos a que Uvicorn inicialice
 sleep 2
 
-# 3. Arrancar el cliente de escritorio
+# 4. Arrancar el cliente de escritorio
 echo "💻 Iniciando Cliente de escritorio..."
 cd client
 python main.py
 
-# 4. Al cerrar la ventana del cliente, matar el proceso del backend
+# 5. Al cerrar el cliente o presionar Ctrl + C, matar todo proceso de Uvicorn del backend
 echo "🛑 Cerrando Backend..."
-kill $BACKEND_PID
+pkill -f "uvicorn server.main:app" >/dev/null 2>&1
