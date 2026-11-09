@@ -1,8 +1,9 @@
 # routers/tasks.py - Endpoints de tareas
 #
-# Permisos:
+# Permisos de movimiento:
 #   Owner  - mover a cualquier estado, crear y eliminar tareas
-#   Member - mover solo a "in_progress" o "in_review"
+#   Member - solo puede mover tareas que NO esten en "done"
+#            y solo hacia "in_progress" o "in_review"
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -76,11 +77,19 @@ def update_task_status(
 
     membership = _get_membership_or_404(db, task.project_id, current_user.id)
 
-    if membership.role != "owner" and data.status not in MEMBER_ALLOWED_STATUSES:
-        raise HTTPException(
-            status.HTTP_403_FORBIDDEN,
-            "Solo podés mover tareas a 'En curso' o 'En revision'"
-        )
+    if membership.role != "owner":
+        # Un member no puede tocar una tarea ya completada
+        if task.status == "done":
+            raise HTTPException(
+                status.HTTP_403_FORBIDDEN,
+                "No podés mover una tarea que ya fue completada"
+            )
+        # Y solo puede mover a in_progress o in_review
+        if data.status not in MEMBER_ALLOWED_STATUSES:
+            raise HTTPException(
+                status.HTTP_403_FORBIDDEN,
+                "Solo podés mover tareas a 'En curso' o 'En revision'"
+            )
 
     task.status = data.status
     db.commit()
