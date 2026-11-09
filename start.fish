@@ -18,6 +18,6 @@ echo "💻 Iniciando Cliente de escritorio..."
 cd client
 python main.py
 
-# 5. Al cerrar el cliente o presionar Ctrl + C, matar todo proceso de Uvicorn del backend
+# 5. Al cerrar el cliente o presionar Ctrl + C, matar todo proceso de uvicorn del backend
 echo "🛑 Cerrando Backend..."
 pkill -f "uvicorn server.main:app" >/dev/null 2>&1
