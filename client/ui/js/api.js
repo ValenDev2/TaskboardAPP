@@ -1,6 +1,6 @@
 // api.js — comunicacion con backend
 
-const API_URL = "http://localhost:8000";
+const API_URL = "https://taskhud.onrender.com";
 
 const Api = {
   /** Devuelve el token guardado, o null si no hay sesión. */
